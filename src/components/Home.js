@@ -1,8 +1,8 @@
 import React from 'react';
 import $ from 'jquery';
 import { Tabs, Button, Spin} from 'antd';
-import {GEO_OPTIONS, POS_KEY, API_ROOT, TOKEN_KEY, AUTH_PREFIX} from "../constants"
-
+import {GEO_OPTIONS, POS_KEY, API_ROOT, TOKEN_KEY, AUTH_PREFIX} from "../constants";
+import { Gallery } from './Gallery';
 const TabPane = Tabs.TabPane;
 
 const operations = <Button>Extra Action</Button>;
@@ -55,11 +55,17 @@ export class Home extends React.Component {
         }else if (this.state.loadingPosts) {
             return <Spin tip="Loading posts..."/>;
         }else if(this.state.posts && this.state.posts.length > 0){
-            return(
-                <div>
-                    number of posts: {this.state.posts.length}
-                </div>
-            );
+            const images = this.state.posts.map((post)=>{
+                return {
+                    user:post.user,
+                    caption:post.message,
+                    src:post.url,
+                    thumbnail:post.url,
+                    thumbnailWidth:400,
+                    thumbnailHeight:300,
+                }
+            });
+            return <Gallery images={images}/>;
         }else {
             return null;
         }
