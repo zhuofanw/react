@@ -4,7 +4,7 @@ import { Tabs, Spin } from 'antd';
 import { GEO_OPTIONS, POS_KEY, AUTH_PREFIX, TOKEN_KEY, API_ROOT } from '../constants';
 import { Gallery } from './Gallery';
 import { CreatePostButton } from './CreatePostButton';
-import {WrappedAroundMap} from "./AroundMap"
+import { WrappedAroundMap } from "./AroundMap"
 
 const TabPane = Tabs.TabPane;
 
@@ -70,25 +70,27 @@ export class Home extends React.Component {
         }
     }
 
-    loadNearbyPosts = () => {
-        const { lat, lon } = JSON.parse(localStorage.getItem(POS_KEY));
-        this.setState({ loadingPosts: true, error: ''});
-        return $.ajax({
-            url: `${API_ROOT}/search?lat=${lat}&lon=${lon}&range=20000`,
+    loadNearbyPosts = (location, radius) => {
+        this.setState({ loadingPosts: true, error: '' });
+        const { lat, lon } = location ? location : JSON.parse(localStorage.getItem(POS_KEY));
+        const range = radius ? radius : 20;
+        $.ajax({
+            url: `${API_ROOT}/search?lat=${lat}&lon=${lon}&range=${range}`,
             method: 'GET',
             headers: {
-                Authorization: `${AUTH_PREFIX} ${localStorage.getItem(TOKEN_KEY)}`
+                Authorization: `${AUTH_PREFIX} ${localStorage.getItem(TOKEN_KEY)}`,
             },
         }).then((response) => {
-            this.setState({ posts: response, loadingPosts: false, error: '' });
             console.log(response);
-        }, (error) => {
-            this.setState({ loadingPosts: false, error: error.responseText });
-            console.log(error);
+            this.setState({ posts: response || [],loadingPosts: false, error: '' });
+        }, (response) => {
+            console.log(response.responseText);
+            this.setState({ loadingPosts: false, error: 'Failed to load posts!' });
         }).catch((error) => {
             console.log(error);
         });
     }
+
 
     render() {
         const createPostButton = <CreatePostButton loadNearbyPosts={this.loadNearbyPosts}/>;
@@ -106,6 +108,7 @@ export class Home extends React.Component {
                         containerElement={<div style={{ height: `400px` }} />}
                         mapElement={<div style={{ height: `100%` }} />}
                         posts={this.state.posts}
+                        loadNearbyPosts = {this.loadNearbyPosts}
                     />
                 </TabPane>
             </Tabs>
