@@ -14,8 +14,9 @@ class AroundMap extends React.Component{
                 defaultZoom={8}
                 defaultCenter={{ lat, lng: lon }}
             >
-                <AroundMarker position={{lat:lat + 0.01, lon: lon + 0.01}}/>
-                <AroundMarker position={{ lat: lat + 0.01, lon: lon - 0.01 }}/>
+                {
+                    this.props.posts.map((post) => <AroundMarker key={post.url} post={post}/>)
+                }
             </GoogleMap>
         );
     }
