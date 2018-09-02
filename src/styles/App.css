@@ -1,9 +1,10 @@
 @import '../../node_modules/antd/dist/antd.css';
-@import './Main.css';
-@import './Register.css';
-@import './Login.css';
-@import './Header.css';
-@import "./Home.css";
+@import 'Main.css';
+@import 'Register.css';
+@import 'Login.css';
+@import 'Header.css';
+@import 'Home.css';
+@import 'AroundMarker.css';
 .App {
     text-align: center;
 }
