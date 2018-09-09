@@ -1,7 +1,9 @@
-import React from 'react';
-import {Marker,InfoWindow} from "react-google-maps"
 
-export class AroundMarker extends React.Component{
+import React from 'react';
+import {Marker, InfoWindow } from 'react-google-maps';
+import blueMarkerUrl from '../assets/images/blue-marker.svg';
+
+export class AroundMarker extends React.Component {
     state = {
         isOpen: false,
     }
@@ -10,27 +12,37 @@ export class AroundMarker extends React.Component{
         this.setState((prevState) => {
             return {
                 isOpen: !prevState.isOpen,
-            };
+            }
         });
     }
-    render(){
-        const { location, url, message, user} = this.props.post;
-        const { lat, lon } = location;
-        return(
+
+    render() {
+        const { location, url, user, message, type } = this.props.post;
+        const isImagePost = type === 'image';
+        const icon = isImagePost ? undefined : {
+            url: blueMarkerUrl,
+            scaledSize: new window.google.maps.Size(26, 41),
+        }
+        return (
             <Marker
-                position={{ lat, lng: lon }}
-                onMouseOver={this.onToggleOpen}
-                onMouseOut={this.onToggleOpen}>
-            {this.state.isOpen ?
-                <InfoWindow>
-                <div>
-                    <img src={url} alt={message} className="around-marker-image"/>
-                    <p>{`${user}:${message}`}</p>
-                </div>
-                </InfoWindow>
-                : null
-                }
-        </Marker>
+                position={{ lat: location.lat, lng: location.lon }}
+                onMouseOver={isImagePost? this.onToggleOpen : undefined}
+                onMouseOut={isImagePost? this.onToggleOpen : undefined}
+                onClick={isImagePost ? undefined : this.onToggleOpen}
+                icon={icon}
+            >
+                {this.state.isOpen ? (<InfoWindow onCloseClick={this.onToggleOpen}>
+                    <div>
+                        {
+                            isImagePost ?
+                                <img src={url} alt={message} className="around-marker-image"/>
+                                :
+                                <video src={url} className="around-marker-video" controls/>
+                        }
+                        <p>{`${user}: ${message}`}</p>
+                    </div>
+                </InfoWindow>) : null}
+            </Marker>
         );
     }
 }

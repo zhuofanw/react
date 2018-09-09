@@ -1,40 +1,53 @@
 import React from 'react';
-import {withScriptjs, withGoogleMap, GoogleMap,} from "react-google-maps";
-import {POS_KEY} from "../constants"
-import {AroundMarker} from "./AroundMarker"
+import {
+    withScriptjs,
+    withGoogleMap,
+    GoogleMap,
+} from 'react-google-maps';
+import { AroundMarker } from './AroundMarker';
+import { POS_KEY } from '../constants';
 
-class AroundMap extends React.Component{
+class AroundMap extends React.Component {
     reloadMarkers = () => {
-        const mapCenter = this.map.getCenter();
-        const center = { lat: mapCenter.lat(), lon: mapCenter.lng()};
-        const radius = this.getRadius();
-        this.props.loadNearbyPosts(center, radius);
+        const center = this.map.getCenter();
+        const position = { lat: center.lat(), lon: center.lng() };
+        const range = this.getRange();
+        this.props.loadNearbyPost(position, range);
     }
-    getRadius = () => {
+
+    getRange = () => {
         const google = window.google;
         const center = this.map.getCenter();
         const bounds = this.map.getBounds();
+        let range = 0;
         if (center && bounds) {
             const ne = bounds.getNorthEast();
             const right = new google.maps.LatLng(center.lat(), ne.lng());
-            return 0.001 * google.maps.geometry.spherical.computeDistanceBetween(center, right);
+            range = 0.001 * google.maps.geometry.spherical.computeDistanceBetween(center, right);
         }
+        return range;
     }
 
     saveMapRef = (mapInstance) => {
+        window.map = mapInstance;
         this.map = mapInstance;
     }
-    render(){
-        const { lat, lon } = JSON.parse(localStorage.getItem(POS_KEY));//get current lat,lon from localStorage
+
+    render() {
+        const { lat, lon } = JSON.parse(localStorage.getItem(POS_KEY));
         return(
             <GoogleMap
+                ref={this.saveMapRef}
                 defaultZoom={11}
                 defaultCenter={{ lat, lng: lon }}
-                ref = {this.saveMapRef}
                 onDragEnd={this.reloadMarkers}
-                onZoomChange={this.reloadMarkers}
+                onZoomChanged={this.reloadMarkers}
             >
-                {this.props.posts.map((post) => <AroundMarker key={post.url} post={post}/> )}
+                {
+                    this.props.posts.map((post) => {
+                        return <AroundMarker post={post} key={post.url}/>
+                    })
+                }
             </GoogleMap>
         );
     }
